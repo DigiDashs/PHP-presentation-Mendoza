@@ -1,0 +1,182 @@
+<?php
+session_start();
+
+// Handle logout
+if (isset($_GET['logout'])) {
+    $_SESSION = [];
+    session_destroy();
+    header("Location: index.php");
+    exit();
+}
+
+// Logged-in check
+if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+    // --- PROFILE PAGE ---
+    $userName  = $_SESSION['user_name'];
+    $userEmail = $_SESSION['user_email'];
+    $userId    = $_SESSION['user_id'];
+    $userRole  = $_SESSION['user_role'];
+    $userBio   = $_SESSION['user_bio'];
+    $lastLogin = $_SESSION['last_login'];
+?>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>User Profile</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f8f9fa;
+      }
+      .container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h2 {
+        color: #333;
+      }
+      .profile {
+        padding: 15px;
+        background: #eef6ff;
+        border-radius: 6px;
+      }
+      .logout {
+        margin-top: 15px;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>
+        Welcome,
+        <?php echo htmlspecialchars($userName); ?>
+        👋
+      </h2>
+      <div class="profile">
+        <p>
+          <strong>User ID:</strong>
+          <?php echo htmlspecialchars($userId); ?>
+        </p>
+        <p>
+          <strong>Email:</strong>
+          <?php echo htmlspecialchars($userEmail); ?>
+        </p>
+        <p>
+          <strong>Role:</strong>
+          <?php echo htmlspecialchars($userRole); ?>
+        </p>
+        <p>
+          <strong>About Me:</strong>
+          <?php echo htmlspecialchars($userBio); ?>
+        </p>
+        <p>
+          <em>Last Login:</em>
+          <?php echo htmlspecialchars($lastLogin); ?>
+        </p>
+      </div>
+      <a class="logout" href="?logout=true">🚪 Logout</a>
+    </div>
+  </body>
+</html>
+
+<?php
+} else {
+    // --- LOGIN PAGE ---
+    $loginError = '';
+
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        $email    = $_POST['email'];
+        $password = $_POST['psw'];
+
+        if ($email === 'user@example.com' && $password === 'password') {
+            $_SESSION['logged_in'] = true;
+            $_SESSION['user_id']   = 1;
+            $_SESSION['user_name'] = 'Test User';
+            $_SESSION['user_email'] = $email;
+            $_SESSION['user_role'] = 'Member';
+            $_SESSION['user_bio']  = 'I love coding PHP and trying new web tech!';
+            $_SESSION['last_login'] = date("Y-m-d H:i:s");
+
+            header("Location: index.php");
+            exit();
+        } else {
+            $loginError = "Invalid email or password.";
+        }
+    }
+?>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+      }
+      .container {
+        max-width: 400px;
+        margin: 80px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      input[type="submit"] {
+        background: #28a745;
+        color: white;
+        padding: 12px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background: #218838;
+      }
+      .error {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Login</h2>
+      <?php if ($loginError): ?>
+      <p class="error"><?php echo htmlspecialchars($loginError); ?></p>
+      <?php endif; ?>
+      <form action="index.php" method="post">
+        <label for="email"><b>Email</b></label>
+        <input type="email" placeholder="Enter Email" name="email" required />
+
+        <label for="psw"><b>Password</b></label>
+        <input
+          type="password"
+          placeholder="Enter Password"
+          name="psw"
+          required
+        />
+
+        <input type="submit" value="Login" />
+      </form>
+    </div>
+  </body>
+</html>
+
+<?php
+} // end login page
+?>
